@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
 <script>
-// ローカルファイルから開いた場合はGitHub Pagesへリダイレクト
 if(location.protocol==='file:'){
   location.replace('https://koichiro16022.github.io/Yoyakunosuke/');
 }
@@ -741,8 +740,7 @@ body {
       <option value="all">全て</option>
       <option value="past">過去</option>
     </select>
-    <span id="readOnlyLabel" style="font-size:12px;color:var(--muted);padding:8px;display:none;">👁 閲覧のみ（共用PCから予約してください）</span>
-    <button id="addResvBtn" class="btn btn-primary" onclick="openModal()">＋ 予約追加</button>
+    ${isReadOnly() ? '<span style="font-size:12px;color:var(--muted);padding:8px;">👁 閲覧のみ（共用PCから予約してください）</span>' : '<button class="btn btn-primary" onclick="openModal()">＋ 予約追加</button>'}
   </div>
   <div class="card">
     <div style="overflow-x:auto;">
@@ -1229,15 +1227,12 @@ function isReadOnly() { return !githubCfg.token; }
 
 function applyReadOnlyUI() {
   const ro = isReadOnly();
-  // FABボタン
   const fab = document.getElementById('fab');
   if (fab) fab.classList.toggle('hidden', ro);
-  // 一覧パネルの追加ボタン / 閲覧ラベル
-  const addBtn = document.getElementById('addResvBtn');
+  const addBtn  = document.getElementById('addResvBtn');
   const roLabel = document.getElementById('readOnlyLabel');
   if (addBtn)  addBtn.style.display  = ro ? 'none' : 'inline-flex';
   if (roLabel) roLabel.style.display = ro ? 'inline' : 'none';
-  // 閲覧バッジ / 同期インジケーター
   const badge = document.getElementById('readOnlyBadge');
   const ind   = document.getElementById('syncIndicator');
   if (badge) badge.style.display = (ro && githubCfg.url) ? 'flex' : 'none';
@@ -2077,7 +2072,7 @@ function triggerEndShower(zodiacIdx, nextName) {
   const imgEl   = document.getElementById('zodiacImg');
   const emojiEl = document.getElementById('zodiacEmoji');
 
-  // 干支画像：ユーザー登録 → デフォルト埋め込み → 絵文字の順でフォールバック
+  // 干支画像 or 絵文字フォールバック
   const img = zodiacImages[actualIdx] || DEFAULT_ZODIAC_IMAGES[actualIdx] || null;
   if (img) {
     imgEl.src = img; imgEl.style.display = 'block';
@@ -2152,7 +2147,7 @@ function testCrasher() {
   const overlay = document.getElementById('endOverlay');
   const imgEl   = document.getElementById('zodiacImg');
   const emojiEl = document.getElementById('zodiacEmoji');
-  const img = zodiacImages[actualIdx] || DEFAULT_ZODIAC_IMAGES[actualIdx] || null;
+  const img = zodiacImages[actualIdx];
   if (img) { imgEl.src = img; imgEl.style.display='block'; emojiEl.style.display='none'; }
   else { imgEl.style.display='none'; emojiEl.textContent=ZODIAC[actualIdx].emoji; emojiEl.style.display='block'; }
   const frame = document.getElementById('zodiacFrame');
@@ -2236,4 +2231,58 @@ function deleteEndPhrase(idx) {
   save(); renderSettings();
 }
 
-function resetDefaultPhrase
+function resetDefaultPhrases() {
+  if (!confirm('フレーズをデフォルトに戻しますか？')) return;
+  endPhrases = [...DEFAULT_END_PHRASES];
+  save(); renderSettings();
+  toast('デフォルトに戻しました');
+}
+
+// ═══════════════════════════════════════════════
+// 初期化
+// ═══════════════════════════════════════════════
+function renderAll() {
+  applyReadOnlyUI();
+  renderCalendar();
+  renderTodayList();
+  renderSettings();
+  if (document.getElementById('panel-list').classList.contains('active')) renderList();
+}
+
+load();
+
+// EmailJS 初期化
+if (emailjsCfg.key) {
+  try { emailjs.init({ publicKey: emailjsCfg.key }); } catch(e) {}
+}
+
+// 初期インジケーター
+setSyncUI(githubCfg.url ? 'syncing' : 'idle', '');
+
+renderAll();
+
+// 起動時にGitHubから最新データを取得
+if (githubCfg.url) {
+  pullFromGithub(false).catch(() => {});
+}
+
+// 30秒ごとに通知チェック
+setInterval(checkNotifications, 30000);
+checkNotifications();
+
+// 60秒ごとにGitHubから定期取得（他のPCの変更を反映）
+setInterval(() => {
+  if (githubCfg.url && !syncInProgress) {
+    pullFromGithub(false).catch(() => {});
+  }
+}, 60000);
+
+// カレンダー表示も1分ごとに更新（使用中バナー反映）
+setInterval(() => {
+  if (document.getElementById('panel-cal').classList.contains('active')) {
+    renderTodayList(); renderCalendar();
+  }
+}, 60000);
+</script>
+</body>
+</html>
