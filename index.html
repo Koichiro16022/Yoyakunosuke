@@ -830,7 +830,10 @@ body {
             <div onclick="document.getElementById('newUserColor').value='#000000'" style="width:26px;height:26px;border-radius:50%;background:#000000;cursor:pointer;border:2px solid #ddd;" title="黒"></div>
           </div>
         </div>
-        <button class="btn btn-primary" style="margin-top:10px;width:100%;" onclick="addUser()">＋ 使用者を追加</button>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn btn-primary" id="userSaveBtn" style="flex:1;" onclick="addUser()">＋ 使用者を追加</button>
+          <button class="btn btn-gray" id="userCancelBtn" style="display:none;" onclick="cancelEditUser()">キャンセル</button>
+        </div>
       </div>
 
       <!-- ブラウザ通知 -->
@@ -1859,17 +1862,52 @@ function deleteResv(id) {
 // ═══════════════════════════════════════════════
 // ユーザー管理
 // ═══════════════════════════════════════════════
+let editingUserId = null;
+
+function startEditUser(id) {
+  const u = getUser(id); if (!u) return;
+  editingUserId = id;
+  document.getElementById('newUserName').value  = u.name;
+  document.getElementById('newUserEmail').value = u.email || '';
+  document.getElementById('newUserColor').value = u.color;
+  document.getElementById('userSaveBtn').textContent = '✏ 更新する';
+  document.getElementById('userCancelBtn').style.display = 'inline-flex';
+  document.getElementById('newUserName').focus();
+}
+
+function cancelEditUser() {
+  editingUserId = null;
+  document.getElementById('newUserName').value  = '';
+  document.getElementById('newUserEmail').value = '';
+  document.getElementById('newUserColor').value = USER_COLORS[users.length % USER_COLORS.length];
+  document.getElementById('userSaveBtn').textContent = '＋ 使用者を追加';
+  document.getElementById('userCancelBtn').style.display = 'none';
+}
+
 function addUser() {
-  const name = document.getElementById('newUserName').value.trim();
+  const name  = document.getElementById('newUserName').value.trim();
   const email = document.getElementById('newUserEmail').value.trim();
   const color = document.getElementById('newUserColor').value;
 
   if (!name) { toast('名前を入力してください', true); return; }
+
+  // 編集モード
+  if (editingUserId) {
+    const dup = users.find(u => u.name === name && u.id !== editingUserId);
+    if (dup) { toast('同じ名前のユーザーが既に存在します', true); return; }
+    const idx = users.findIndex(u => u.id === editingUserId);
+    if (idx >= 0) users[idx] = { ...users[idx], name, email, color };
+    cancelEditUser();
+    save(); renderSettings();
+    toast(`${name} を更新しました`);
+    return;
+  }
+
+  // 新規追加モード
   if (users.length >= 10) { toast('使用者は最大10名です', true); return; }
   if (users.some(u => u.name === name)) { toast('同じ名前のユーザーが既に存在します', true); return; }
-
   users.push({ id: uid(), name, email, color });
-  document.getElementById('newUserName').value = '';
+  document.getElementById('newUserName').value  = '';
   document.getElementById('newUserEmail').value = '';
   document.getElementById('newUserColor').value = USER_COLORS[users.length % USER_COLORS.length];
   save(); renderSettings();
@@ -1900,6 +1938,7 @@ function renderSettings() {
           <div class="user-name">${escH(u.name)}</div>
           <div class="user-email">${escH(u.email||'メールアドレスなし')}</div>
         </div>
+        <button class="btn btn-outline btn-sm" onclick="startEditUser('${u.id}')">✏ 編集</button>
         <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">削除</button>
       </div>`).join('');
 
