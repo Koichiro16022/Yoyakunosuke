@@ -1109,7 +1109,9 @@ const DOW_JP = ['日','月','火','水','木','金','土'];
 // ═══════════════════════════════════════════════
 function save() {
   try {
+    const savedAt = new Date().toISOString();
     localStorage.setItem('yoyaku_v1', JSON.stringify({ reservations, users, emailjsCfg, endPhrases }));
+    localStorage.setItem('yoyaku_savedAt', savedAt); // ローカル保存タイムスタンプ
     // GitHub設定済みなら即時プッシュ
     if (githubCfg.url && githubCfg.token) {
       pushToGithub(false);
@@ -1304,15 +1306,30 @@ async function pullFromGithub(showToast = false) {
   try {
     const result = await githubGet();
     if (result) {
-      // GitHub側のデータで上書き
       const d = result.data;
+      // ローカルとGitHubのタイムスタンプを比較
+      // ローカルが新しい（まだプッシュ中）場合は上書きしない
+      const localSavedAt  = localStorage.getItem('yoyaku_savedAt') || '';
+      const githubUpdatedAt = d.updatedAt || '';
+      if (localSavedAt && githubUpdatedAt && localSavedAt > githubUpdatedAt) {
+        // ローカルの方が新しい → GitHubにプッシュし直してスキップ
+        lastGithubSha = result.sha;
+        setSyncUI('syncing', 'ローカルの方が新しいためGitHubに保存中…');
+        await pushToGithub(false);
+        setSyncUI('ok', `最終同期: ${new Date().toLocaleTimeString('ja')}`);
+        syncInProgress = false;
+        return;
+      }
+      // GitHub側のデータで上書き
       reservations = d.reservations || [];
       users        = d.users        || [];
       emailjsCfg   = d.emailjsCfg   || { service:'', template:'', key:'' };
       endPhrases   = d.endPhrases   || [...DEFAULT_END_PHRASES];
       lastGithubSha = result.sha;
       // localStorageにも反映
+      const now = new Date().toISOString();
       localStorage.setItem('yoyaku_v1', JSON.stringify({ reservations, users, emailjsCfg, endPhrases }));
+      localStorage.setItem('yoyaku_savedAt', now);
       renderAll();
       const t = new Date().toLocaleTimeString('ja');
       setSyncUI('ok', `最終同期: ${t}`);
