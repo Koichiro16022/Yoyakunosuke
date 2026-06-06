@@ -8,6 +8,15 @@
       "purpose": "コード修正",
       "notified": false,
       "createdAt": "2026-06-06T07:57:27.363Z"
+    },
+    {
+      "id": "mq230stn1bio",
+      "userId": "mq21t1pgq787",
+      "start": "2026-06-06T00:30",
+      "end": "2026-06-06T01:30",
+      "purpose": "",
+      "notified": false,
+      "createdAt": "2026-06-06T08:19:19.403Z"
     }
   ],
   "users": [
@@ -33,5 +42,5 @@
     "あとちょっとやで！",
     "終わりの時間やよ〜！"
   ],
-  "updatedAt": "2026-06-06T08:13:09.068Z"
+  "updatedAt": "2026-06-06T08:19:19.404Z"
 }
