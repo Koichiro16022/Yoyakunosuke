@@ -925,14 +925,18 @@ body {
             <option value="">選択してください</option>
           </select>
         </div>
+        <div class="fg">
+          <label>日付 *</label>
+          <input type="date" id="rf-date" onchange="autoFillEnd();updateConflict()">
+        </div>
         <div class="form-row">
           <div class="fg">
-            <label>開始日時 *</label>
-            <input type="datetime-local" id="rf-start" onchange="autoFillEnd();updateConflict()">
+            <label>開始時刻 *</label>
+            <input type="time" id="rf-start-time" onchange="autoFillEnd();updateConflict()">
           </div>
           <div class="fg">
-            <label>終了日時 *</label>
-            <input type="datetime-local" id="rf-end" onchange="updateConflict()">
+            <label>終了時刻 *</label>
+            <input type="time" id="rf-end-time" onchange="updateConflict()">
           </div>
         </div>
         <div class="fg">
@@ -1713,8 +1717,9 @@ function openModal(prefill) {
     const nextH = mn < 30 ? h : h+1;
     const startD = new Date(base.getFullYear(), base.getMonth(), base.getDate(), nextH, nextHalfH);
     const endD = new Date(startD.getTime() + 3600000);
-    document.getElementById('rf-start').value = toDatetimeLocal(startD);
-    document.getElementById('rf-end').value = toDatetimeLocal(endD);
+    document.getElementById('rf-date').value = dateStr(startD);
+    document.getElementById('rf-start-time').value = fmtTime(toDatetimeLocal(startD));
+    document.getElementById('rf-end-time').value = fmtTime(toDatetimeLocal(endD));
     document.getElementById('rf-purpose').value = '';
     document.getElementById('conflictWarn').style.display = 'none';
   }
@@ -1736,8 +1741,9 @@ function editResv(id) {
 
   document.getElementById('rf-user').innerHTML = '<option value="">選択してください</option>' +
     users.map(u=>`<option value="${u.id}"${u.id===r.userId?' selected':''}>${escH(u.name)}</option>`).join('');
-  document.getElementById('rf-start').value = r.start;
-  document.getElementById('rf-end').value = r.end;
+  document.getElementById('rf-date').value = r.start.slice(0, 10);
+  document.getElementById('rf-start-time').value = r.start.slice(11, 16);
+  document.getElementById('rf-end-time').value = r.end.slice(11, 16);
   document.getElementById('rf-purpose').value = r.purpose || '';
   updateConflict();
 
@@ -1752,16 +1758,28 @@ function closeModal() {
 function overlayClose(e) { if (e.target.id==='resvOverlay') closeModal(); }
 
 function autoFillEnd() {
-  const s = document.getElementById('rf-start').value;
-  if (!s) return;
-  const sd = new Date(s);
-  const ed = new Date(sd.getTime() + 3600000);
-  document.getElementById('rf-end').value = toDatetimeLocal(ed);
+  const t = document.getElementById('rf-start-time').value;
+  if (!t) return;
+  const [h, m] = t.split(':').map(Number);
+  const endH = (h + 1) % 24;
+  document.getElementById('rf-end-time').value = `${String(endH).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  updateConflict();
+}
+
+function getStartVal() {
+  const d = document.getElementById('rf-date').value;
+  const t = document.getElementById('rf-start-time').value;
+  return d && t ? `${d}T${t}` : '';
+}
+function getEndVal() {
+  const d = document.getElementById('rf-date').value;
+  const t = document.getElementById('rf-end-time').value;
+  return d && t ? `${d}T${t}` : '';
 }
 
 function updateConflict() {
-  const start = document.getElementById('rf-start').value;
-  const end = document.getElementById('rf-end').value;
+  const start = getStartVal();
+  const end = getEndVal();
   const warn = document.getElementById('conflictWarn');
   if (!start || !end || start >= end) { warn.style.display='none'; return; }
   const conflicts = getConflicts(start, end, editingId);
@@ -1779,13 +1797,14 @@ function updateConflict() {
 
 function saveReservation() {
   const userId = document.getElementById('rf-user').value;
-  const start = document.getElementById('rf-start').value;
-  const end = document.getElementById('rf-end').value;
+  const start = getStartVal();
+  const end = getEndVal();
   const purpose = document.getElementById('rf-purpose').value.trim();
 
   if (!userId) { toast('使用者を選択してください', true); return; }
-  if (!start) { toast('開始日時を入力してください', true); return; }
-  if (!end) { toast('終了日時を入力してください', true); return; }
+  if (!document.getElementById('rf-date').value) { toast('日付を入力してください', true); return; }
+  if (!document.getElementById('rf-start-time').value) { toast('開始時刻を入力してください', true); return; }
+  if (!document.getElementById('rf-end-time').value) { toast('終了時刻を入力してください', true); return; }
   if (start >= end) { toast('終了日時は開始日時より後にしてください', true); return; }
 
   const conflicts = getConflicts(start, end, editingId);
