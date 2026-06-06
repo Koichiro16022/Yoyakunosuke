@@ -1,0 +1,37 @@
+{
+  "reservations": [
+    {
+      "id": "mq228og3bad8",
+      "userId": "mq21t1pgq787",
+      "start": "2026-06-08T09:00",
+      "end": "2026-06-08T12:00",
+      "purpose": "コード修正",
+      "notified": false,
+      "createdAt": "2026-06-06T07:57:27.363Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "mq21t1pgq787",
+      "name": "石田耕一郎",
+      "email": "daru_k@yahoo.co.jp",
+      "color": "#3b82f6"
+    }
+  ],
+  "emailjsCfg": {
+    "service": "",
+    "template": "",
+    "key": ""
+  },
+  "endPhrases": [
+    "もうすぐ時間やでー！",
+    "次の人が待ってるで！",
+    "{次の人}さんが待ってるでー！",
+    "時間やで！切り上げてや！",
+    "そろそろ終わりやで！",
+    "お疲れさまでした！",
+    "あとちょっとやで！",
+    "終わりの時間やよ〜！"
+  ],
+  "updatedAt": "2026-06-06T08:13:09.068Z"
+}
