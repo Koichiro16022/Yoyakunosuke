@@ -1060,6 +1060,16 @@ const CRASHER_ZIDS = [0, 1, 2, 3, 10, 11];
 // 割り込み確率（0〜1）
 const CRASH_PROB = 0.25;
 
+// シャッフルキュー：6匹を順に出し切ったらまたシャッフル
+let crasherQueue = [];
+function nextCrasherIdx() {
+  if (crasherQueue.length === 0) {
+    // 全員出し切ったらシャッフルして補充
+    crasherQueue = [...CRASHER_ZIDS].sort(() => Math.random() - 0.5);
+  }
+  return crasherQueue.shift();
+}
+
 // ═══════════════════════════════════════════════
 // データ
 // ═══════════════════════════════════════════════
@@ -2142,7 +2152,7 @@ function triggerEndShower(zodiacIdx, nextName) {
   let actualIdx = zodiacIdx;
   let isCrasher = false;
   if (Math.random() < CRASH_PROB) {
-    actualIdx = CRASHER_ZIDS[Math.floor(Math.random() * CRASHER_ZIDS.length)];
+    actualIdx = nextCrasherIdx();
     isCrasher = true;
   }
 
@@ -2221,7 +2231,7 @@ function testShower() {
 function testCrasher() {
   if (showerActive) return;
   showerActive = true;
-  const actualIdx = CRASHER_ZIDS[Math.floor(Math.random() * CRASHER_ZIDS.length)];
+  const actualIdx = nextCrasherIdx();
   const overlay = document.getElementById('endOverlay');
   const imgEl   = document.getElementById('zodiacImg');
   const emojiEl = document.getElementById('zodiacEmoji');
