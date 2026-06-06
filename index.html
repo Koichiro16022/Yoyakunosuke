@@ -2186,7 +2186,7 @@ function testCrasher() {
   const overlay = document.getElementById('endOverlay');
   const imgEl   = document.getElementById('zodiacImg');
   const emojiEl = document.getElementById('zodiacEmoji');
-  const img = zodiacImages[actualIdx];
+  const img = zodiacImages[actualIdx] || DEFAULT_ZODIAC_IMAGES[actualIdx] || null;
   if (img) { imgEl.src = img; imgEl.style.display='block'; emojiEl.style.display='none'; }
   else { imgEl.style.display='none'; emojiEl.textContent=ZODIAC[actualIdx].emoji; emojiEl.style.display='block'; }
   const frame = document.getElementById('zodiacFrame');
