@@ -2173,17 +2173,34 @@ function uploadZodiac(idx) {
   document.getElementById('zodiacFile' + idx).click();
 }
 
-function onZodiacFile(idx, input) {
+// アップロード画像を最大600px・JPEG72%に自動リサイズ
+function resizeImage(file, maxWidth = 600, quality = 0.72) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const w = Math.min(img.width, maxWidth);
+      const h = Math.round(img.height * w / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = url;
+  });
+}
+
+async function onZodiacFile(idx, input) {
   const file = input.files[0]; if (!file) return;
   if (!file.type.startsWith('image/')) { toast('画像ファイルを選択してください', true); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    zodiacImages[idx] = e.target.result;
-    saveZodiacImages();
-    renderSettings();
-    toast(`${ZODIAC[idx].name}（${ZODIAC[idx].kana}）の画像を登録しました`);
-  };
-  reader.readAsDataURL(file);
+  toast('画像を処理中…');
+  const b64 = await resizeImage(file);
+  const kb = Math.round(b64.length * 3 / 4 / 1024);
+  zodiacImages[idx] = b64;
+  saveZodiacImages();
+  renderSettings();
+  toast(`${ZODIAC[idx].name}（${ZODIAC[idx].kana}）を登録しました（${kb}KB）`);
   input.value = '';
 }
 
