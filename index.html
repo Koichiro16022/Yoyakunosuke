@@ -765,8 +765,8 @@ body {
   <div class="card">
     <div class="card-body">
 
-      <!-- GitHub同期設定 -->
-      <div class="settings-sec">
+      <!-- GitHub同期設定（トークン設定済みのPCのみ表示） -->
+      <div class="settings-sec" id="githubSettingsSec">
         <h3>🐙 GitHub同期設定</h3>
         <div class="note">
           GitHubリポジトリを使って複数PCでデータを共有します。<br>
@@ -1922,8 +1922,12 @@ function renderSettings() {
   document.getElementById('ghToken').value = githubCfg.token || '';
   document.getElementById('ghFile').value  = githubCfg.file  || 'yoyaku_data.json';
 
+  // GitHub同期設定セクション：トークンなし（閲覧のみ）のPCでは非表示
+  const ghSec = document.getElementById('githubSettingsSec');
+  if (ghSec) ghSec.style.display = isReadOnly() ? 'none' : 'block';
+
   // 同期インジケーター更新
-  if (!githubCfg.url)    setSyncUI('idle', '');
+  if (!githubCfg.url) setSyncUI('idle', '');
   // （ok/errorは同期処理側でセット済）
 
   // EmailJS
