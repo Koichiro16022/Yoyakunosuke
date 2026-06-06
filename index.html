@@ -162,12 +162,12 @@ body {
   gap: 2px;
 }
 .view-tab {
-  padding: 6px 14px;
+  padding: 9px 20px;
   border: none;
   border-radius: 6px;
   background: transparent;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.15s;
@@ -700,10 +700,10 @@ body {
 
   <!-- ナビゲーション -->
   <div class="cal-nav">
-    <button class="btn btn-outline btn-sm" onclick="calNav(-1)">‹</button>
+    <button class="btn btn-outline" style="font-size:22px;padding:6px 16px;line-height:1;" onclick="calNav(-1)">‹</button>
     <div class="cal-title" id="calTitle">2026年6月</div>
-    <button class="btn btn-outline btn-sm" onclick="calNav(1)">›</button>
-    <button class="btn btn-gray btn-sm" onclick="goToday()">今日</button>
+    <button class="btn btn-outline" style="font-size:22px;padding:6px 16px;line-height:1;" onclick="calNav(1)">›</button>
+    <button class="btn btn-gray" style="font-size:15px;padding:8px 18px;" onclick="goToday()">今日</button>
     <div class="view-tabs">
       <button class="view-tab active" id="vtab-month" onclick="setView('month')">月</button>
       <button class="view-tab" id="vtab-week" onclick="setView('week')">週</button>
