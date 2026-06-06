@@ -814,6 +814,22 @@ body {
             <input type="color" id="newUserColor" value="#3B82F6" style="height:41px;padding:3px 4px;cursor:pointer;border:1.5px solid var(--border);border-radius:8px;">
           </div>
         </div>
+        <!-- カラースウォッチ -->
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);width:100%;text-transform:uppercase;letter-spacing:.05em;">プリセットカラー</div>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;">
+            <div onclick="document.getElementById('newUserColor').value='#FF0000'" style="width:26px;height:26px;border-radius:50%;background:#FF0000;cursor:pointer;border:2px solid #ddd;" title="赤"></div>
+            <div onclick="document.getElementById('newUserColor').value='#FF6600'" style="width:26px;height:26px;border-radius:50%;background:#FF6600;cursor:pointer;border:2px solid #ddd;" title="オレンジ"></div>
+            <div onclick="document.getElementById('newUserColor').value='#FFFF00'" style="width:26px;height:26px;border-radius:50%;background:#FFFF00;cursor:pointer;border:2px solid #ddd;" title="黄"></div>
+            <div onclick="document.getElementById('newUserColor').value='#00B050'" style="width:26px;height:26px;border-radius:50%;background:#00B050;cursor:pointer;border:2px solid #ddd;" title="緑"></div>
+            <div onclick="document.getElementById('newUserColor').value='#00B0F0'" style="width:26px;height:26px;border-radius:50%;background:#00B0F0;cursor:pointer;border:2px solid #ddd;" title="水色"></div>
+            <div onclick="document.getElementById('newUserColor').value='#0070C0'" style="width:26px;height:26px;border-radius:50%;background:#0070C0;cursor:pointer;border:2px solid #ddd;" title="青"></div>
+            <div onclick="document.getElementById('newUserColor').value='#7030A0'" style="width:26px;height:26px;border-radius:50%;background:#7030A0;cursor:pointer;border:2px solid #ddd;" title="紫"></div>
+            <div onclick="document.getElementById('newUserColor').value='#FF66CC'" style="width:26px;height:26px;border-radius:50%;background:#FF66CC;cursor:pointer;border:2px solid #ddd;" title="ピンク"></div>
+            <div onclick="document.getElementById('newUserColor').value='#888888'" style="width:26px;height:26px;border-radius:50%;background:#888888;cursor:pointer;border:2px solid #ddd;" title="グレー"></div>
+            <div onclick="document.getElementById('newUserColor').value='#000000'" style="width:26px;height:26px;border-radius:50%;background:#000000;cursor:pointer;border:2px solid #ddd;" title="黒"></div>
+          </div>
+        </div>
         <button class="btn btn-primary" style="margin-top:10px;width:100%;" onclick="addUser()">＋ 使用者を追加</button>
       </div>
 
