@@ -2137,7 +2137,8 @@ function checkNotifications() {
     // ── 終了時刻：干支シャワー ──
     if (!r.endNotified) {
       const end = new Date(r.end);
-      if (end > now && end <= new Date(now.getTime() + 30000)) {
+      const diffMs = now.getTime() - end.getTime();
+      if (diffMs >= 0 && diffMs < 60000) {
         // 干支インデックス
         const zIdx = getZodiacIdx(now.getHours());
 
