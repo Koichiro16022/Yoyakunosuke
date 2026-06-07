@@ -1895,7 +1895,10 @@ function saveReservation() {
 
   if (editingId) {
     const idx = reservations.findIndex(r => r.id===editingId);
-    if (idx>=0) reservations[idx] = { ...reservations[idx], userId, start, end, purpose, notified: false, endNotified: false };
+    if (idx>=0) reservations[idx] = { ...reservations[idx], userId, start, end, purpose };
+    // 編集時はセッション通知済みをリセット（新しい時刻で再発火させる）
+    sessionStartNotified.delete(editingId);
+    sessionEndNotified.delete(editingId);
     toast('予約を更新しました');
   } else {
     reservations.push({ id: uid(), userId, start, end, purpose, notified: false, createdAt: new Date().toISOString() });
