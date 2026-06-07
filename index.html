@@ -2172,32 +2172,35 @@ let showerActive = false;
 function triggerEndShower(zodiacIdx) {
   if (showerActive) return;
   showerActive = true;
+  showShower(zodiacIdx, false);
 
-  // ── 割り込みチェック ──
-  // 25%の確率で就業時間外の干支がサプライズ登場！
-  let actualIdx = zodiacIdx;
-  let isCrasher = false;
+  // 通常表示が終わった後、25%の確率で割り込み干支を続けて表示
   if (Math.random() < CRASH_PROB) {
-    actualIdx = nextCrasherIdx();
-    isCrasher = true;
+    setTimeout(() => {
+      showShower(nextCrasherIdx(), true);
+    }, 6000);
+  } else {
+    setTimeout(() => { showerActive = false; }, 6000);
   }
+}
 
+function showShower(zodiacIdx, isCrasher) {
   const overlay = document.getElementById('endOverlay');
   const imgEl   = document.getElementById('zodiacImg');
   const emojiEl = document.getElementById('zodiacEmoji');
 
   // 干支画像 or 絵文字フォールバック
-  const img = zodiacImages[actualIdx] || DEFAULT_ZODIAC_IMAGES[actualIdx] || null;
+  const img = zodiacImages[zodiacIdx] || DEFAULT_ZODIAC_IMAGES[zodiacIdx] || null;
   if (img) {
     imgEl.src = img; imgEl.style.display = 'block';
     emojiEl.style.display = 'none';
   } else {
     imgEl.style.display = 'none';
-    emojiEl.textContent = ZODIAC[actualIdx].emoji;
+    emojiEl.textContent = ZODIAC[zodiacIdx].emoji;
     emojiEl.style.display = 'block';
   }
 
-  // アニメーションリセット（再起動のため）
+  // アニメーションリセット
   const frame = document.getElementById('zodiacFrame');
   frame.style.animation = 'none';
   void frame.offsetWidth;
@@ -2211,12 +2214,9 @@ function triggerEndShower(zodiacIdx) {
   overlay.style.display = 'flex';
 
   // フレーズ選択
-  let words;
-  if (isCrasher) {
-    words = CRASHER_PHRASES;
-  } else {
-    words = endPhrases.length > 0 ? endPhrases : DEFAULT_END_PHRASES;
-  }
+  const words = isCrasher
+    ? CRASHER_PHRASES
+    : (endPhrases.length > 0 ? endPhrases : DEFAULT_END_PHRASES);
 
   // ワードシャワー（22発）
   for (let i = 0; i < 22; i++) {
@@ -2224,7 +2224,6 @@ function triggerEndShower(zodiacIdx) {
       const d = document.createElement('div');
       d.className = 'shower-word';
       d.textContent = words[Math.floor(Math.random() * words.length)];
-      // 割り込み時はゴールド色
       if (isCrasher) d.style.color = '#FFD700';
       d.style.left = (Math.random() * 72 + 8) + '%';
       d.style.top  = (Math.random() * 72 + 10) + '%';
@@ -2233,8 +2232,12 @@ function triggerEndShower(zodiacIdx) {
     }, i * 200);
   }
 
-  // 5.5秒後に自動クローズ
-  setTimeout(() => closeEndOverlay(), 5600);
+  // 5.5秒後にクローズ（割り込みなら完全終了、通常はtriggerEndShowerが制御）
+  if (isCrasher) {
+    setTimeout(() => closeEndOverlay(), 5600);
+  } else {
+    setTimeout(() => { overlay.style.display = 'none'; }, 5600);
+  }
 }
 
 function closeEndOverlay() {
@@ -2252,28 +2255,7 @@ function testShower() {
 function testCrasher() {
   if (showerActive) return;
   showerActive = true;
-  const actualIdx = nextCrasherIdx();
-  const overlay = document.getElementById('endOverlay');
-  const imgEl   = document.getElementById('zodiacImg');
-  const emojiEl = document.getElementById('zodiacEmoji');
-  const img = zodiacImages[actualIdx] || DEFAULT_ZODIAC_IMAGES[actualIdx] || null;
-  if (img) { imgEl.src = img; imgEl.style.display='block'; emojiEl.style.display='none'; }
-  else { imgEl.style.display='none'; emojiEl.textContent=ZODIAC[actualIdx].emoji; emojiEl.style.display='block'; }
-  const frame = document.getElementById('zodiacFrame');
-  frame.style.animation='none'; void frame.offsetWidth; frame.style.animation='';
-  frame.style.boxShadow='0 0 60px rgba(255,200,0,0.8), 0 0 120px rgba(255,150,0,0.4)';
-  overlay.style.display='flex';
-  for (let i=0;i<22;i++){
-    setTimeout(()=>{
-      const d=document.createElement('div'); d.className='shower-word';
-      d.textContent=CRASHER_PHRASES[Math.floor(Math.random()*CRASHER_PHRASES.length)];
-      d.style.color='#FFD700';
-      d.style.left=(Math.random()*72+8)+'%'; d.style.top=(Math.random()*72+10)+'%';
-      document.body.appendChild(d);
-      setTimeout(()=>d.parentNode&&d.parentNode.removeChild(d),2700);
-    },i*200);
-  }
-  setTimeout(()=>closeEndOverlay(),5600);
+  showShower(nextCrasherIdx(), true);
 }
 
 // ═══════════════════════════════════════════════
