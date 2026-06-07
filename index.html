@@ -1707,7 +1707,7 @@ function renderTodayList() {
         <div style="font-size:12px;color:var(--muted);">${fmtTime(r.start)}〜${fmtTime(r.end)}${r.purpose?' ／ '+escH(r.purpose):''}</div>
       </div>
       ${badge(st.label, st.cls)}
-      ${isReadOnly() ? '' : `<button class="btn-icon ib-edit" onclick="editResv('${r.id}')">✏</button>`}
+      ${isReadOnly() ? '' : `<button class="btn-icon ib-edit" onclick="editResv('${r.id}')">編集</button>`}
     </div>`;
   }).join('');
 }
@@ -1766,7 +1766,7 @@ function renderList() {
       <td><span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block;"></span><span style="font-weight:bold;">${escH(name)}</span></span></td>
       <td style="max-width:220px;font-size:12px;color:var(--muted);">${escH(r.purpose||'—')}</td>
       <td>${badge(st.label,st.cls)}</td>
-      <td>${isReadOnly() ? '' : `<div style="display:flex;gap:4px;"><button class="btn-icon ib-edit" onclick="editResv('${r.id}')">✏</button><button class="btn-icon ib-del" onclick="deleteResv('${r.id}')">🗑</button></div>`}</td>
+      <td>${isReadOnly() ? '' : `<div style="display:flex;gap:4px;"><button class="btn-icon ib-edit" onclick="editResv('${r.id}')">編集</button><button class="btn-icon ib-del" onclick="deleteResv('${r.id}')">削除</button></div>`}</td>
     </tr>`;
   }).join('');
 }
