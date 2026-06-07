@@ -1519,9 +1519,23 @@ function renderCalendar() {
   const banner = document.getElementById('inUseBanner');
   if (inUse) {
     const u = getUser(inUse.userId);
+    const color = u ? u.color : '#10B981';
     banner.style.display = 'flex';
-    document.getElementById('inUseBannerText').textContent =
-      `🖥️ 現在 ${u ? u.name : '不明'} さんが使用中（〜${fmtTime(inUse.end)}）`;
+    banner.style.background = `linear-gradient(135deg, ${color}dd, ${color})`;
+    banner.style.boxShadow = `0 4px 16px ${color}55`;
+
+    // 次の予約を探す
+    const todayStr = dateStr(now);
+    const nextResv = reservations
+      .filter(x => x.id !== inUse.id && x.start.startsWith(todayStr) && new Date(x.start) >= new Date(inUse.end))
+      .sort((a,b) => a.start.localeCompare(b.start))[0];
+    const nextUser = nextResv ? getUser(nextResv.userId) : null;
+    const nextInfo = nextResv && nextUser
+      ? `<div style="font-size:12px;opacity:0.9;margin-top:3px;">次：${escH(nextUser.name)} さん（${fmtTime(nextResv.start)}〜）</div>`
+      : '';
+
+    document.getElementById('inUseBannerText').innerHTML =
+      `<div>🖥️ 現在 ${escH(u ? u.name : '不明')} さんが使用中（〜${fmtTime(inUse.end)}）</div>${nextInfo}`;
   } else {
     banner.style.display = 'none';
   }
@@ -2004,17 +2018,18 @@ function renderSettings() {
   // 干支グリッド
   const zg = document.getElementById('zodiacGrid');
   zg.innerHTML = ZODIAC.map((z, i) => {
-    const hasImg = !!zodiacImages[i];
-    const preview = hasImg
-      ? `<img class="z-preview" src="${zodiacImages[i]}" alt="">`
-      : `<div class="z-placeholder">未登録</div>`;
-    return `<div class="zodiac-cell${hasImg?' has-img':''}">
+    const hasCustom = !!zodiacImages[i];
+    const imgSrc = hasCustom ? zodiacImages[i] : DEFAULT_ZODIAC_IMAGES[i];
+    const preview = `<img class="z-preview" src="${imgSrc}" alt="">`;
+    const label = hasCustom ? 'カスタム画像' : 'デフォルト画像';
+    return `<div class="zodiac-cell has-img">
       <div class="z-emoji">${z.emoji}</div>
       <div class="z-name">${z.name}（${z.kana}）</div>
       <div class="z-hours">${z.hours}</div>
       ${preview}
-      <button class="btn btn-outline btn-sm" style="width:100%;margin-bottom:3px;" onclick="uploadZodiac(${i})">${hasImg?'変更':'登録'}</button>
-      ${hasImg?`<button class="btn btn-gray btn-sm" style="width:100%;" onclick="clearZodiacImg(${i})">削除</button>`:''}
+      <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">${label}</div>
+      <button class="btn btn-outline btn-sm" style="width:100%;margin-bottom:3px;" onclick="uploadZodiac(${i})">変更</button>
+      ${hasCustom?`<button class="btn btn-gray btn-sm" style="width:100%;" onclick="clearZodiacImg(${i})">デフォルトに戻す</button>`:''}
       <input type="file" id="zodiacFile${i}" accept="image/*" style="display:none;" onchange="onZodiacFile(${i},this)">
     </div>`;
   }).join('');
