@@ -697,6 +697,11 @@ body {
     <div class="dot"></div>
     <div id="inUseBannerText">このPCは現在使用中です</div>
   </div>
+  <!-- 次の人バナー -->
+  <div class="in-use-banner" id="nextUserBanner" style="display:none;">
+    <div class="dot"></div>
+    <div id="nextUserBannerText"></div>
+  </div>
 
   <!-- ナビゲーション -->
   <div class="cal-nav">
@@ -955,7 +960,7 @@ body {
           </div>
           <div class="fg">
             <label>終了時刻 *</label>
-            <input type="time" id="rf-end-time" onchange="updateConflict()">
+            <input type="time" id="rf-end-time" onchange="updateConflict()" onkeydown="if(event.key==='Enter')saveResv()">
           </div>
         </div>
         <div class="fg">
@@ -1517,12 +1522,16 @@ function renderCalendar() {
   const now = new Date();
   const inUse = reservations.find(r => new Date(r.start) <= now && new Date(r.end) >= now);
   const banner = document.getElementById('inUseBanner');
+  const nextBanner = document.getElementById('nextUserBanner');
+
   if (inUse) {
     const u = getUser(inUse.userId);
     const color = u ? u.color : '#10B981';
     banner.style.display = 'flex';
     banner.style.background = `linear-gradient(135deg, ${color}dd, ${color})`;
     banner.style.boxShadow = `0 4px 16px ${color}55`;
+    document.getElementById('inUseBannerText').textContent =
+      `🖥️ 現在 ${u ? u.name : '不明'} さんが使用中（〜${fmtTime(inUse.end)}）`;
 
     // 次の予約を探す
     const todayStr = dateStr(now);
@@ -1530,14 +1539,19 @@ function renderCalendar() {
       .filter(x => x.id !== inUse.id && x.start.startsWith(todayStr) && new Date(x.start) >= new Date(inUse.end))
       .sort((a,b) => a.start.localeCompare(b.start))[0];
     const nextUser = nextResv ? getUser(nextResv.userId) : null;
-    const nextInfo = nextResv && nextUser
-      ? `<div style="font-size:12px;opacity:0.9;margin-top:3px;">次：${escH(nextUser.name)} さん（${fmtTime(nextResv.start)}〜）</div>`
-      : '';
-
-    document.getElementById('inUseBannerText').innerHTML =
-      `<div>🖥️ 現在 ${escH(u ? u.name : '不明')} さんが使用中（〜${fmtTime(inUse.end)}）</div>${nextInfo}`;
+    if (nextResv && nextUser) {
+      const nc = nextUser.color || '#3B82F6';
+      nextBanner.style.display = 'flex';
+      nextBanner.style.background = `linear-gradient(135deg, ${nc}dd, ${nc})`;
+      nextBanner.style.boxShadow = `0 4px 16px ${nc}55`;
+      document.getElementById('nextUserBannerText').textContent =
+        `⏭ 次：${nextUser.name} さん（${fmtTime(nextResv.start)}〜${fmtTime(nextResv.end)}）`;
+    } else {
+      nextBanner.style.display = 'none';
+    }
   } else {
     banner.style.display = 'none';
+    nextBanner.style.display = 'none';
   }
 }
 
@@ -1875,7 +1889,7 @@ function saveReservation() {
 
   if (editingId) {
     const idx = reservations.findIndex(r => r.id===editingId);
-    if (idx>=0) reservations[idx] = { ...reservations[idx], userId, start, end, purpose, notified: false };
+    if (idx>=0) reservations[idx] = { ...reservations[idx], userId, start, end, purpose, notified: false, endNotified: false };
     toast('予約を更新しました');
   } else {
     reservations.push({ id: uid(), userId, start, end, purpose, notified: false, createdAt: new Date().toISOString() });
