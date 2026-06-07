@@ -2160,12 +2160,16 @@ function checkNotifications() {
       const diffMs = now.getTime() - end.getTime();
       if (diffMs >= 0 && diffMs < 90000) {  // 終了後90秒以内
         sessionEndNotified.add(r.id);
+        try { window.focus(); } catch(e) {}
         triggerEndShower(getZodiacIdx(now.getHours()));
         if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
           const u = getUser(r.userId);
+          const zIdx = getZodiacIdx(now.getHours());
+          const iconUrl = zodiacImages[zIdx] || DEFAULT_ZODIAC_IMAGES[zIdx] || '';
           try {
             new Notification('🐾 よやくの助 — 予約終了時間です', {
-              body: `${u ? u.name : ''}さん、予約時間が終了しました（${fmtTime(r.end)}）`
+              body: `${u ? u.name : ''}さん、予約時間が終了しました（${fmtTime(r.end)}）`,
+              icon: iconUrl
             });
           } catch(e) {}
         }
