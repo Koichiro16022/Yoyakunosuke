@@ -1075,6 +1075,10 @@ function nextCrasherIdx() {
   return crasherQueue.shift();
 }
 
+// セッション中のみ通知済みを管理（保存しない）
+const sessionStartNotified = new Set(); // 予約ID: 開始通知済み
+const sessionEndNotified   = new Set(); // 予約ID: 終了通知済み
+
 // ═══════════════════════════════════════════════
 // データ
 // ═══════════════════════════════════════════════
@@ -1115,7 +1119,8 @@ const DOW_JP = ['日','月','火','水','木','金','土'];
 function save() {
   try {
     const savedAt = new Date().toISOString();
-    localStorage.setItem('yoyaku_v1', JSON.stringify({ reservations, users, emailjsCfg, endPhrases }));
+    const cleanResv = reservations.map(({notified, endNotified, ...r}) => r);
+    localStorage.setItem('yoyaku_v1', JSON.stringify({ reservations: cleanResv, users, emailjsCfg, endPhrases }));
     localStorage.setItem('yoyaku_savedAt', savedAt); // ローカル保存タイムスタンプ
     // GitHub設定済みなら即時プッシュ
     if (githubCfg.url && githubCfg.token) {
@@ -1358,7 +1363,8 @@ async function pushToGithub(showToast = true) {
   }
   setSyncUI('syncing', 'GitHubへ保存中…');
   try {
-    const data = { reservations, users, emailjsCfg, endPhrases, updatedAt: new Date().toISOString() };
+    const cleanResv = reservations.map(({notified, endNotified, ...r}) => r);
+    const data = { reservations: cleanResv, users, emailjsCfg, endPhrases, updatedAt: new Date().toISOString() };
     await githubPut(data);
     const t = new Date().toLocaleTimeString('ja');
     setSyncUI('ok', `保存完了: ${t}`);
@@ -2114,23 +2120,22 @@ async function requestNotif() {
 }
 
 // ═══════════════════════════════════════════════
-// 通知チェック（開始5分前 & 終了5分前）
+// 通知チェック（開始5分前 & 終了時刻）
 // ═══════════════════════════════════════════════
 function checkNotifications() {
   const now = new Date();
   const in5 = new Date(now.getTime() + 5 * 60000);
-  let changed = false;
 
   reservations.forEach(r => {
     // ── 開始5分前通知 ──
-    if (!r.notified) {
+    if (!sessionStartNotified.has(r.id)) {
       const start = new Date(r.start);
       if (start > now && start <= in5) {
+        sessionStartNotified.add(r.id);
         const u = getUser(r.userId);
         const name = u ? u.name : '不明';
         const timeStr = `${fmtTime(r.start)}〜${fmtTime(r.end)}`;
         const body = `${name} さん、予約開始まであと5分です。（${timeStr}${r.purpose?' / '+r.purpose:''}）`;
-
         if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
           try { new Notification('⏰ よやくの助 — もうすぐ予約時間です', { body }); } catch(e) {}
         }
@@ -2143,23 +2148,16 @@ function checkNotifications() {
             });
           } catch(e) {}
         }
-        r.notified = true;
-        changed = true;
       }
     }
 
     // ── 終了時刻：干支シャワー ──
-    if (!r.endNotified) {
+    if (!sessionEndNotified.has(r.id)) {
       const end = new Date(r.end);
       const diffMs = now.getTime() - end.getTime();
-      if (diffMs >= 0 && diffMs < 60000) {
-        // 干支インデックス
-        const zIdx = getZodiacIdx(now.getHours());
-
-        // シャワー発動
-        triggerEndShower(zIdx);
-
-        // ブラウザ通知
+      if (diffMs >= 0 && diffMs < 90000) {  // 終了後90秒以内
+        sessionEndNotified.add(r.id);
+        triggerEndShower(getZodiacIdx(now.getHours()));
         if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
           const u = getUser(r.userId);
           try {
@@ -2168,14 +2166,9 @@ function checkNotifications() {
             });
           } catch(e) {}
         }
-
-        r.endNotified = true;
-        changed = true;
       }
     }
   });
-
-  if (changed) { save(); renderTodayList(); renderCalendar(); }
 }
 
 // ═══════════════════════════════════════════════
