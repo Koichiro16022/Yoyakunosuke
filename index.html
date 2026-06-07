@@ -956,11 +956,11 @@ body {
         <div class="form-row">
           <div class="fg">
             <label>開始時刻 *</label>
-            <input type="time" id="rf-start-time" onchange="autoFillEnd();updateConflict()">
+            <input type="time" id="rf-start-time" onchange="autoFillEnd();updateConflict()" onkeydown="if(event.key==='Enter')saveReservation()">
           </div>
           <div class="fg">
             <label>終了時刻 *</label>
-            <input type="time" id="rf-end-time" onchange="updateConflict()" onkeydown="if(event.key==='Enter')saveResv()">
+            <input type="time" id="rf-end-time" onchange="updateConflict()" onkeydown="if(event.key==='Enter')saveReservation()">
           </div>
         </div>
         <div class="fg">
