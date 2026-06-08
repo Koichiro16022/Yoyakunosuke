@@ -146,6 +146,7 @@ body {
   gap: 8px;
   margin-bottom: 14px;
   flex-wrap: wrap;
+  position: relative;
 }
 .cal-title {
   font-size: 18px;
@@ -706,10 +707,8 @@ body {
   <!-- ナビゲーション -->
   <div class="cal-nav">
     <button class="btn btn-outline" style="font-size:22px;padding:6px 16px;line-height:1;" onclick="calNav(-1)">‹</button>
-    <div style="flex:1;display:flex;align-items:center;position:relative;">
-      <div class="cal-title" id="calTitle" style="flex:none;">2026年6月</div>
-      <img src="mascot.png" style="height:64px;width:auto;border-radius:8px;position:absolute;left:50%;transform:translateX(-50%);" title="よやくの助">
-    </div>
+    <div class="cal-title" id="calTitle">2026年6月</div>
+    <img src="mascot.png" style="height:64px;width:auto;border-radius:8px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;" title="よやくの助">
     <button class="btn btn-outline" style="font-size:22px;padding:6px 16px;line-height:1;" onclick="calNav(1)">›</button>
     <button class="btn btn-gray" style="font-size:15px;padding:8px 18px;" onclick="goToday()">今日</button>
     <div class="view-tabs">
