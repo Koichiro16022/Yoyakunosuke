@@ -777,7 +777,9 @@ body {
         <div id="adminLockForm" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <input type="password" id="adminPinInput" placeholder="PINを入力" style="padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;width:150px;" onkeydown="if(event.key==='Enter')unlockAdmin()">
           <button class="btn btn-primary" onclick="unlockAdmin()">🔓 開く</button>
-          <button class="btn btn-outline btn-sm" onclick="showPinSetup()" id="pinSetupBtn" style="font-size:12px;">PINを設定</button>
+        </div>
+        <div style="margin-top:8px;">
+          <button class="btn btn-outline btn-sm" onclick="showPinSetup()" id="pinSetupBtn" style="font-size:12px;">🔑 PINを変更・設定</button>
         </div>
         <div id="pinSetupForm" style="display:none;margin-top:10px;gap:8px;flex-wrap:wrap;align-items:center;">
           <input type="password" id="newPin1" placeholder="新しいPIN" style="padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;width:140px;">
