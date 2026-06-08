@@ -2308,8 +2308,9 @@ function openShowerPopup(zodiacIdx, crasherIdx, isCrasherDirect = false) {
     cEmoji  = ZODIAC[crasherIdx].emoji;
   }
 
+  const sw = window.screen.width, sh = window.screen.height;
   const popup = window.open('', 'yoyaku_shower',
-    'width=800,height=860,top=60,left=100,toolbar=no,location=no,menubar=no,status=no,scrollbars=no,resizable=no');
+    `width=${sw},height=${sh},top=0,left=0,toolbar=no,location=no,menubar=no,status=no,scrollbars=no,resizable=no`);
   if (!popup || popup.closed) return false;
 
   const phrasesSafe  = JSON.stringify(phrases);
@@ -2322,19 +2323,19 @@ function openShowerPopup(zodiacIdx, crasherIdx, isCrasherDirect = false) {
   const initShadow = isCrasherDirect
     ? '0 0 60px rgba(255,200,0,0.8),0 0 120px rgba(255,150,0,0.4)'
     : '0 0 60px rgba(255,200,60,0.55)';
-  const initWordColor = isCrasherDirect ? '#FFD700' : 'null';
+  const initWordColor = isCrasherDirect ? `'#FFD700'` : 'null';
 
   popup.document.open();
   popup.document.write(`<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>よやくの助</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:#000;overflow:hidden;width:800px;height:860px;cursor:pointer;font-family:sans-serif;}
+html,body{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;cursor:pointer;font-family:sans-serif;}
 #frame{
   position:absolute;top:50%;left:50%;
   background:#fff;border-radius:22px;overflow:hidden;
   box-shadow:${initShadow};
-  width:700px;height:700px;
+  width:min(700px,90vw);height:min(700px,90vh);
   display:flex;align-items:center;justify-content:center;
   animation:zodPop 5.5s ease-in-out forwards;
 }
@@ -2383,6 +2384,8 @@ function spawnWords(phrases,color){
   }
 }
 const INIT_COLOR=${initWordColor};
+// フルスクリーン化
+try { document.documentElement.requestFullscreen(); } catch(e) {}
 spawnWords(PHRASES, INIT_COLOR === 'null' ? null : INIT_COLOR);
 if(HAS_CRASHER){
   setTimeout(()=>{
