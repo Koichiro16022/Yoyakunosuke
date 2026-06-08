@@ -680,7 +680,7 @@ body {
 <nav class="top-nav">
   <button class="nav-btn active" id="nav-cal" onclick="switchPanel('cal')">📅 カレンダー</button>
   <button class="nav-btn" id="nav-list" onclick="switchPanel('list')">📋 予約一覧</button>
-  <div style="flex:1;text-align:center;font-size:20px;font-weight:900;color:#fff;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:8px;"><img src="mascot.png" style="height:36px;width:auto;border-radius:6px;vertical-align:middle;">よやくの助</div>
+  <div style="flex:1;text-align:center;font-size:20px;font-weight:900;color:#fff;letter-spacing:0.5px;">よやくの助</div>
   <div class="sync-indicator" id="syncIndicator" title="GitHub同期状態">⚫ 未設定</div>
   <div class="sync-indicator" id="readOnlyBadge" style="display:none;background:rgba(251,191,36,0.4);cursor:default;" title="トークン未設定のため閲覧のみ">👁 閲覧のみ</div>
   <button class="nav-btn" id="syncBtn" onclick="manualSync()" title="GitHubから最新データを取得" style="padding:7px 11px;">🔄</button>
@@ -706,8 +706,8 @@ body {
   <!-- ナビゲーション -->
   <div class="cal-nav">
     <button class="btn btn-outline" style="font-size:22px;padding:6px 16px;line-height:1;" onclick="calNav(-1)">‹</button>
+    <img src="mascot.png" style="height:64px;width:auto;border-radius:8px;" title="よやくの助">
     <div class="cal-title" id="calTitle">2026年6月</div>
-    <img src="mascot.png" style="height:64px;width:auto;border-radius:8px;cursor:pointer;" title="よやくの助">
     <button class="btn btn-outline" style="font-size:22px;padding:6px 16px;line-height:1;" onclick="calNav(1)">›</button>
     <button class="btn btn-gray" style="font-size:15px;padding:8px 18px;" onclick="goToday()">今日</button>
     <div class="view-tabs">
