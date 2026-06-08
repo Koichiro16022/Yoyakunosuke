@@ -770,6 +770,26 @@ body {
   <div class="card">
     <div class="card-body">
 
+      <!-- 管理者設定ロック -->
+      <div class="settings-sec" id="adminLockSec">
+        <h3>🔒 管理者設定</h3>
+        <div class="note">GitHub同期設定・メール通知設定は管理者のみ変更できます。</div>
+        <div id="adminLockForm" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="password" id="adminPinInput" placeholder="PINを入力" style="padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;width:150px;" onkeydown="if(event.key==='Enter')unlockAdmin()">
+          <button class="btn btn-primary" onclick="unlockAdmin()">🔓 開く</button>
+          <button class="btn btn-outline btn-sm" onclick="showPinSetup()" id="pinSetupBtn" style="font-size:12px;">PINを設定</button>
+        </div>
+        <div id="pinSetupForm" style="display:none;margin-top:10px;gap:8px;flex-wrap:wrap;align-items:center;">
+          <input type="password" id="newPin1" placeholder="新しいPIN" style="padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;width:140px;">
+          <input type="password" id="newPin2" placeholder="確認" style="padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;width:140px;">
+          <button class="btn btn-primary btn-sm" onclick="savePin()">保存</button>
+          <button class="btn btn-gray btn-sm" onclick="document.getElementById('pinSetupForm').style.display='none'">キャンセル</button>
+        </div>
+      </div>
+
+      <!-- 管理者設定コンテンツ（ロック解除後に表示） -->
+      <div id="adminContent" style="display:none;">
+
       <!-- GitHub同期設定（トークン設定済みのPCのみ表示） -->
       <div class="settings-sec" id="githubSettingsSec">
         <h3>🐙 GitHub同期設定</h3>
@@ -875,6 +895,8 @@ body {
           <button class="btn btn-outline" onclick="testEmail()">📧 テスト送信</button>
         </div>
       </div>
+
+      </div><!-- /adminContent -->
 
       <!-- バックアップ -->
       <div class="settings-sec">
@@ -2020,6 +2042,13 @@ function renderSettings() {
   const [msg, cls] = permInfo[perm] || permInfo.default;
   document.getElementById('notifStatus').innerHTML = `<div class="notif-status ${cls}">🔔 ${msg}</div>`;
 
+  // 管理者設定：設定画面を開くたびにロック状態に戻す
+  document.getElementById('adminContent').style.display = 'none';
+  document.getElementById('adminLockForm').style.display = 'flex';
+  document.getElementById('pinSetupBtn').style.display = '';
+  document.getElementById('adminPinInput').value = '';
+  document.getElementById('pinSetupForm').style.display = 'none';
+
   // GitHub設定
   document.getElementById('ghUrl').value   = githubCfg.url   || '';
   document.getElementById('ghToken').value = githubCfg.token || '';
@@ -2078,6 +2107,49 @@ function renderSettings() {
     <span style="font-size:11px;color:var(--muted);align-self:center;">※割り込みは本番でも約25%の確率で発生</span>
   `;
   document.getElementById('zodiacGrid').after(wrap);
+}
+
+// ═══════════════════════════════════════════════
+// 管理者PINロック
+// ═══════════════════════════════════════════════
+function unlockAdmin() {
+  const pin = localStorage.getItem('yoyaku_admin_pin') || '';
+  const input = document.getElementById('adminPinInput').value;
+  if (!pin) {
+    // PIN未設定の場合はそのまま開く
+    document.getElementById('adminContent').style.display = 'block';
+    document.getElementById('adminLockForm').style.display = 'none';
+    document.getElementById('pinSetupBtn').style.display = 'none';
+    toast('管理者設定を開きました。PINを設定することをお勧めします');
+    return;
+  }
+  if (input === pin) {
+    document.getElementById('adminContent').style.display = 'block';
+    document.getElementById('adminLockForm').style.display = 'none';
+    document.getElementById('pinSetupBtn').style.display = 'none';
+    document.getElementById('adminPinInput').value = '';
+    toast('管理者設定を開きました');
+  } else {
+    toast('PINが違います', true);
+    document.getElementById('adminPinInput').value = '';
+  }
+}
+
+function showPinSetup() {
+  const f = document.getElementById('pinSetupForm');
+  f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+}
+
+function savePin() {
+  const p1 = document.getElementById('newPin1').value;
+  const p2 = document.getElementById('newPin2').value;
+  if (!p1) { toast('PINを入力してください', true); return; }
+  if (p1 !== p2) { toast('PINが一致しません', true); return; }
+  localStorage.setItem('yoyaku_admin_pin', p1);
+  document.getElementById('newPin1').value = '';
+  document.getElementById('newPin2').value = '';
+  document.getElementById('pinSetupForm').style.display = 'none';
+  toast('PINを保存しました');
 }
 
 function saveEmailjs() {
