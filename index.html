@@ -2297,10 +2297,10 @@ function triggerEndShower(zodiacIdx) {
   }
 }
 
-function openShowerPopup(zodiacIdx, crasherIdx) {
+function openShowerPopup(zodiacIdx, crasherIdx, isCrasherDirect = false) {
   const imgSrc  = zodiacImages[zodiacIdx] || DEFAULT_ZODIAC_IMAGES[zodiacIdx] || '';
   const emoji   = ZODIAC[zodiacIdx].emoji;
-  const phrases = endPhrases.length > 0 ? endPhrases : DEFAULT_END_PHRASES;
+  const phrases = isCrasherDirect ? CRASHER_PHRASES : (endPhrases.length > 0 ? endPhrases : DEFAULT_END_PHRASES);
   const hasCrasher = crasherIdx !== null;
   let cImgSrc = '', cEmoji = '';
   if (hasCrasher) {
@@ -2319,6 +2319,10 @@ function openShowerPopup(zodiacIdx, crasherIdx) {
   const mainContent  = imgSrc
     ? `<img src="${imgSrc.replace(/"/g,'&quot;')}" alt="" style="width:700px;height:700px;object-fit:contain;display:block;">`
     : `<div style="font-size:120px;padding:30px;">${emoji}</div>`;
+  const initShadow = isCrasherDirect
+    ? '0 0 60px rgba(255,200,0,0.8),0 0 120px rgba(255,150,0,0.4)'
+    : '0 0 60px rgba(255,200,60,0.55)';
+  const initWordColor = isCrasherDirect ? '#FFD700' : 'null';
 
   popup.document.open();
   popup.document.write(`<!DOCTYPE html>
@@ -2329,7 +2333,7 @@ body{background:#000;overflow:hidden;width:800px;height:860px;cursor:pointer;fon
 #frame{
   position:absolute;top:50%;left:50%;
   background:#fff;border-radius:22px;overflow:hidden;
-  box-shadow:0 0 60px rgba(255,200,60,0.55);
+  box-shadow:${initShadow};
   width:700px;height:700px;
   display:flex;align-items:center;justify-content:center;
   animation:zodPop 5.5s ease-in-out forwards;
@@ -2378,7 +2382,8 @@ function spawnWords(phrases,color){
     },i*200);
   }
 }
-spawnWords(PHRASES,null);
+const INIT_COLOR=${initWordColor};
+spawnWords(PHRASES, INIT_COLOR === 'null' ? null : INIT_COLOR);
 if(HAS_CRASHER){
   setTimeout(()=>{
     const f=document.getElementById('frame');
@@ -2472,7 +2477,10 @@ function testShower() {
 function testCrasher() {
   if (showerActive) return;
   showerActive = true;
-  showShower(nextCrasherIdx(), true);
+  const cIdx = nextCrasherIdx();
+  const didPopup = openShowerPopup(cIdx, null, true);
+  if (!didPopup) showShower(cIdx, true);
+  setTimeout(() => { showerActive = false; }, 6500);
 }
 
 // ═══════════════════════════════════════════════
