@@ -2045,7 +2045,6 @@ function renderSettings() {
   // 管理者設定：設定画面を開くたびにロック状態に戻す
   document.getElementById('adminContent').style.display = 'none';
   document.getElementById('adminLockForm').style.display = 'flex';
-  document.getElementById('pinSetupBtn').style.display = '';
   document.getElementById('adminPinInput').value = '';
   document.getElementById('pinSetupForm').style.display = 'none';
 
@@ -2119,14 +2118,12 @@ function unlockAdmin() {
     // PIN未設定の場合はそのまま開く
     document.getElementById('adminContent').style.display = 'block';
     document.getElementById('adminLockForm').style.display = 'none';
-    document.getElementById('pinSetupBtn').style.display = 'none';
     toast('管理者設定を開きました。PINを設定することをお勧めします');
     return;
   }
   if (input === pin) {
     document.getElementById('adminContent').style.display = 'block';
     document.getElementById('adminLockForm').style.display = 'none';
-    document.getElementById('pinSetupBtn').style.display = 'none';
     document.getElementById('adminPinInput').value = '';
     toast('管理者設定を開きました');
   } else {
