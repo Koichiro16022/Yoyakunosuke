@@ -2233,6 +2233,7 @@ function checkNotifications() {
       const diffMs = now.getTime() - end.getTime();
       if (diffMs >= 0 && diffMs < 90000) {  // 終了後90秒以内
         sessionEndNotified.add(r.id);
+        playEndSound();
         try { window.focus(); } catch(e) {}
         triggerEndShower(getZodiacIdx(now.getHours()));
         if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
@@ -2255,6 +2256,24 @@ function checkNotifications() {
 // 干支シャワー演出
 // ═══════════════════════════════════════════════
 let showerActive = false;
+
+function playEndSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // ポーン×3 の通知音
+    [0, 0.35, 0.7].forEach((t, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = [880, 1100, 1320][i];
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.4, ctx.currentTime + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.3);
+      osc.start(ctx.currentTime + t);
+      osc.stop(ctx.currentTime + t + 0.35);
+    });
+  } catch(e) {}
+}
 
 function triggerEndShower(zodiacIdx) {
   if (showerActive) return;
@@ -2298,7 +2317,7 @@ function openShowerPopup(zodiacIdx, crasherIdx) {
   const cImgSafe     = JSON.stringify(cImgSrc);
   const cEmojiSafe   = JSON.stringify(cEmoji);
   const mainContent  = imgSrc
-    ? `<img src="${imgSrc.replace(/"/g,'&quot;')}" alt="" style="max-width:680px;max-height:680px;display:block;">`
+    ? `<img src="${imgSrc.replace(/"/g,'&quot;')}" alt="" style="width:700px;height:700px;object-fit:contain;display:block;">`
     : `<div style="font-size:120px;padding:30px;">${emoji}</div>`;
 
   popup.document.open();
@@ -2311,7 +2330,7 @@ body{background:#000;overflow:hidden;width:800px;height:860px;cursor:pointer;fon
   position:absolute;top:50%;left:50%;
   background:#fff;border-radius:22px;overflow:hidden;
   box-shadow:0 0 60px rgba(255,200,60,0.55);
-  max-width:680px;max-height:680px;
+  width:700px;height:700px;
   display:flex;align-items:center;justify-content:center;
   animation:zodPop 5.5s ease-in-out forwards;
 }
@@ -2365,7 +2384,7 @@ if(HAS_CRASHER){
     const f=document.getElementById('frame');
     f.style.animation='none';
     void f.offsetWidth;
-    f.innerHTML=C_IMG?'<img src="'+C_IMG+'" alt="" style="max-width:680px;max-height:680px;display:block;">':'<div style="font-size:120px;padding:30px;">'+C_EMOJI+'<\/div>';
+    f.innerHTML=C_IMG?'<img src="'+C_IMG+'" alt="" style="width:700px;height:700px;object-fit:contain;display:block;">':'<div style="font-size:120px;padding:30px;">'+C_EMOJI+'<\/div>';
     f.style.boxShadow='0 0 60px rgba(255,200,0,0.8),0 0 120px rgba(255,150,0,0.4)';
     f.style.animation='zodPop 5.5s ease-in-out forwards';
     spawnWords(C_PHRASES,'#FFD700');
