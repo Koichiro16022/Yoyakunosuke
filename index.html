@@ -2084,6 +2084,7 @@ function renderSettings() {
       ${preview}
       <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">${label}</div>
       <button class="btn btn-outline btn-sm" style="width:100%;margin-bottom:3px;" onclick="uploadZodiac(${i})">変更</button>
+      <button class="btn btn-sm" style="width:100%;margin-bottom:3px;background:#E0F2FE;color:#0369A1;border:1.5px solid #7DD3FC;" onclick="previewZodiac(${i})">▶ プレビュー表示</button>
       ${hasCustom?`<button class="btn btn-gray btn-sm" style="width:100%;" onclick="clearZodiacImg(${i})">デフォルトに戻す</button>`:''}
       <input type="file" id="zodiacFile${i}" accept="image/*" style="display:none;" onchange="onZodiacFile(${i},this)">
     </div>`;
@@ -2468,6 +2469,15 @@ function showShower(zodiacIdx, isCrasher) {
 function closeEndOverlay() {
   document.getElementById('endOverlay').style.display = 'none';
   showerActive = false;
+}
+
+// 指定した干支を時刻に関係なく一時的にプレビュー表示
+function previewZodiac(idx) {
+  if (showerActive) return;
+  showerActive = true;
+  const didPopup = openShowerPopup(idx, null);
+  if (!didPopup) showShower(idx, false);
+  setTimeout(() => { showerActive = false; }, 6500);
 }
 
 // テスト用（通常）
