@@ -3,10 +3,9 @@
     {
       "id": "mq228og3bad8",
       "userId": "mq21t1pgq787",
-      "start": "2026-06-08T09:00",
-      "end": "2026-06-08T12:00",
+      "start": "2026-06-06T18:00",
+      "end": "2026-06-06T19:19",
       "purpose": "コード修正",
-      "notified": false,
       "createdAt": "2026-06-06T07:57:27.363Z"
     },
     {
@@ -15,32 +14,91 @@
       "start": "2026-06-11T00:30",
       "end": "2026-06-11T01:30",
       "purpose": "テスト作成",
-      "notified": false,
       "createdAt": "2026-06-06T08:19:19.403Z"
+    },
+    {
+      "id": "mq253yta9z8z",
+      "userId": "mq251f0p4k9v",
+      "start": "2026-06-16T19:30",
+      "end": "2026-06-16T20:30",
+      "purpose": "テスト",
+      "createdAt": "2026-06-06T09:17:46.366Z"
+    },
+    {
+      "id": "mq3e9suxubbr",
+      "userId": "mq251qj7r8o3",
+      "start": "2026-06-07T15:00",
+      "end": "2026-06-07T16:34",
+      "purpose": "test",
+      "createdAt": "2026-06-07T06:22:01.306Z"
+    },
+    {
+      "id": "mq3eagohphh4",
+      "userId": "mq251f0p4k9v",
+      "start": "2026-06-07T19:00",
+      "end": "2026-06-07T20:00",
+      "purpose": "test",
+      "createdAt": "2026-06-07T06:22:32.177Z"
+    },
+    {
+      "id": "mq3f4qctg2e5",
+      "userId": "mq21t1pgq787",
+      "start": "2026-06-07T21:40",
+      "end": "2026-06-07T22:40",
+      "purpose": "",
+      "createdAt": "2026-06-07T06:46:04.397Z"
+    },
+    {
+      "id": "mq3f8kpojxwc",
+      "userId": "mq251f0p4k9v",
+      "start": "2026-06-07T22:40",
+      "end": "2026-06-07T23:40",
+      "purpose": "",
+      "createdAt": "2026-06-07T06:49:03.708Z"
+    },
+    {
+      "id": "mq54prgdhp9z",
+      "userId": "mq251qj7r8o3",
+      "start": "2026-06-09T00:00",
+      "end": "2026-06-09T03:36",
+      "purpose": "テスト",
+      "createdAt": "2026-06-08T11:30:02.173Z"
     }
   ],
   "users": [
     {
       "id": "mq21t1pgq787",
       "name": "石田耕一郎",
-      "email": "daru_k@yahoo.co.jp",
+      "email": "ishida.koichiro-1@kobelco.com",
       "color": "#3b82f6"
+    },
+    {
+      "id": "mq251f0p4k9v",
+      "name": "前田淳",
+      "email": "ishida.koichiro16022@gmail.com",
+      "color": "#00b050"
+    },
+    {
+      "id": "mq251qj7r8o3",
+      "name": "鳥居室長",
+      "email": "ishida.koichiro16022@gmail.com",
+      "color": "#ff66cc"
     }
   ],
   "emailjsCfg": {
-    "service": "",
-    "template": "",
-    "key": ""
+    "service": "service_0iyr42f",
+    "template": "template_zmr6qgr",
+    "key": "4mtwx5OjnjbGIG0vQ"
   },
   "endPhrases": [
-    "もうすぐ時間やでー！",
-    "次の人が待ってるで！",
-    "{次の人}さんが待ってるでー！",
+    "もう時間やでー！",
+    "終わりやでー！",
     "時間やで！切り上げてや！",
     "そろそろ終わりやで！",
     "お疲れさまでした！",
-    "あとちょっとやで！",
+    "もうええで〜！終わり終わり！",
+    "PC返してや〜！",
     "終わりの時間やよ〜！"
   ],
-  "updatedAt": "2026-06-06T08:21:16.282Z"
+  "updatedAt": "2026-06-12T08:54:41.638Z"
 }
