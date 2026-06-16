@@ -63,6 +63,14 @@
       "end": "2026-06-09T03:36",
       "purpose": "テスト",
       "createdAt": "2026-06-08T11:30:02.173Z"
+    },
+    {
+      "id": "mqg9by8ddyoc",
+      "userId": "mq21t1pgq787",
+      "start": "2026-06-16T15:25",
+      "end": "2026-06-16T16:25",
+      "purpose": "",
+      "createdAt": "2026-06-16T06:24:43.789Z"
     }
   ],
   "users": [
@@ -75,14 +83,32 @@
     {
       "id": "mq251f0p4k9v",
       "name": "前田淳",
-      "email": "ishida.koichiro16022@gmail.com",
-      "color": "#00b050"
+      "email": "maeda.jun@kobelco.com",
+      "color": "#7030a0"
     },
     {
       "id": "mq251qj7r8o3",
       "name": "鳥居室長",
-      "email": "ishida.koichiro16022@gmail.com",
+      "email": "torii.hiroaki@kobelco.com",
+      "color": "#00b050"
+    },
+    {
+      "id": "mqg99sd8mn11",
+      "name": "黒木亮甫",
+      "email": "kurogi.ryosuke@kobelco.com",
+      "color": "#f97316"
+    },
+    {
+      "id": "mqg9a8o4ih1k",
+      "name": "横山久美子",
+      "email": "yokoyama.kumiko@kobelco.com",
       "color": "#ff66cc"
+    },
+    {
+      "id": "mqg9al0dm14v",
+      "name": "橘綾子",
+      "email": "tachibana.ayako-1@kobelco.com",
+      "color": "#ff0000"
     }
   ],
   "emailjsCfg": {
@@ -100,5 +126,5 @@
     "PC返してや〜！",
     "終わりの時間やよ〜！"
   ],
-  "updatedAt": "2026-06-13T23:29:18.418Z"
+  "updatedAt": "2026-06-16T06:41:30.437Z"
 }
