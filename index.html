@@ -2,9 +2,10 @@
 <html lang="ja">
 <head>
 <script>
-if(location.protocol==='file:'){
-  location.replace('https://koichiro16022.github.io/Yoyakunosuke/');
-}
+// ローカルファイルとして開いた場合はリダイレクトしない（個人PCでのコード修正・動作確認用）
+// if(location.protocol==='file:'){
+//   location.replace('https://koichiro16022.github.io/Yoyakunosuke/');
+// }
 </script>
 <meta charset="UTF-8">
 <link rel="manifest" href="manifest.json">
@@ -794,6 +795,17 @@ body {
       <!-- 管理者設定コンテンツ（ロック解除後に表示） -->
       <div id="adminContent" style="display:none;">
 
+      <!-- このPCで編集を許可 -->
+      <div class="settings-sec">
+        <h3>✏️ このPCでの編集許可</h3>
+        <div class="note">GitHubトークンなしでも、このPCで予約の追加・編集ができるようになります。データはこのPCのブラウザに保存されます。閲覧のみにしたい他のPCではこの設定を有効にしないでください。</div>
+        <div id="localEditStatus" style="margin-bottom:10px;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary" id="localEditEnableBtn" onclick="enableLocalEdit()">✏️ このPCで編集を許可する</button>
+          <button class="btn btn-danger btn-sm" id="localEditDisableBtn" onclick="disableLocalEdit()" style="display:none;">🔒 閲覧のみに戻す</button>
+        </div>
+      </div>
+
       <!-- GitHub同期設定（トークン設定済みのPCのみ表示） -->
       <div class="settings-sec" id="githubSettingsSec">
         <h3>🐙 GitHub同期設定</h3>
@@ -1293,8 +1305,14 @@ async function githubPut(data, retrying = false) {
 // ═══════════════════════════════════════════════
 // 同期UI
 // ═══════════════════════════════════════════════
-// 読み取り専用モード（トークンなし）
-function isReadOnly() { return !githubCfg.token; }
+// ローカル編集モード（PINロック解除後に設定）
+function isLocalEditMode() { return localStorage.getItem('yoyaku_local_edit') === '1'; }
+
+// 読み取り専用モード：GitHubのURLはあるがトークンなし、かつローカル編集モードでない場合
+function isReadOnly() {
+  if (isLocalEditMode()) return false;
+  return !githubCfg.token;
+}
 
 function applyReadOnlyUI() {
   const ro = isReadOnly();
@@ -1307,7 +1325,8 @@ function applyReadOnlyUI() {
   const badge = document.getElementById('readOnlyBadge');
   const ind   = document.getElementById('syncIndicator');
   if (badge) badge.style.display = (ro && githubCfg.url) ? 'flex' : 'none';
-  if (ind)   ind.style.display   = ro ? 'none' : 'flex';
+  // 同期インジケーターはトークンが設定されている場合のみ表示
+  if (ind)   ind.style.display   = githubCfg.token ? 'flex' : 'none';
 }
 
 function setSyncUI(state, msg) {
@@ -1498,6 +1517,8 @@ function getConflicts(start, end, excludeId) {
 // パネル切替
 // ═══════════════════════════════════════════════
 function switchPanel(name) {
+  // 設定画面を離れるときに管理者ロックをかける
+  if (name !== 'settings') adminUnlocked = false;
   ['cal','list','settings'].forEach(p => {
     document.getElementById('panel-'+p).classList.toggle('active', p===name);
     document.getElementById('nav-'+p).classList.toggle('active', p===name);
@@ -1953,6 +1974,7 @@ function deleteResv(id) {
 // ユーザー管理
 // ═══════════════════════════════════════════════
 let editingUserId = null;
+let adminUnlocked = false; // 管理者ロック解除状態を保持
 
 function startEditUser(id) {
   const u = getUser(id); if (!u) return;
@@ -2046,16 +2068,27 @@ function renderSettings() {
   const [msg, cls] = permInfo[perm] || permInfo.default;
   document.getElementById('notifStatus').innerHTML = `<div class="notif-status ${cls}">🔔 ${msg}</div>`;
 
-  // 管理者設定：設定画面を開くたびにロック状態に戻す
-  document.getElementById('adminContent').style.display = 'none';
-  document.getElementById('adminLockForm').style.display = 'flex';
-  document.getElementById('adminPinInput').value = '';
-  document.getElementById('pinSetupForm').style.display = 'none';
+  // 管理者設定：ロック解除済みの場合はそのまま表示を維持する
+  document.getElementById('adminContent').style.display = adminUnlocked ? 'block' : 'none';
+  document.getElementById('adminLockForm').style.display = adminUnlocked ? 'none' : 'flex';
+  if (!adminUnlocked) document.getElementById('adminPinInput').value = '';
+  if (!adminUnlocked) document.getElementById('pinSetupForm').style.display = 'none';
 
   // GitHub設定
   document.getElementById('ghUrl').value   = githubCfg.url   || '';
   document.getElementById('ghToken').value = githubCfg.token || '';
   document.getElementById('ghFile').value  = githubCfg.file  || 'yoyaku_data.json';
+
+  // ローカル編集モード状態を反映
+  const localEdit = isLocalEditMode();
+  const enableBtn = document.getElementById('localEditEnableBtn');
+  const disableBtn = document.getElementById('localEditDisableBtn');
+  const localEditStatus = document.getElementById('localEditStatus');
+  if (enableBtn) enableBtn.style.display = localEdit ? 'none' : 'inline-flex';
+  if (disableBtn) disableBtn.style.display = localEdit ? 'inline-flex' : 'none';
+  if (localEditStatus) localEditStatus.innerHTML = localEdit
+    ? '<div class="notif-status notif-granted">✏️ 共用PCでの編集が許可されています</div>'
+    : '<div class="notif-status notif-default">👁 現在は閲覧のみです</div>';
 
   // GitHub同期設定セクション：トークンなし（閲覧のみ）のPCでは非表示
   const ghSec = document.getElementById('githubSettingsSec');
@@ -2120,13 +2153,14 @@ function unlockAdmin() {
   const pin = localStorage.getItem('yoyaku_admin_pin') || '';
   const input = document.getElementById('adminPinInput').value;
   if (!pin) {
-    // PIN未設定の場合はそのまま開く
+    adminUnlocked = true;
     document.getElementById('adminContent').style.display = 'block';
     document.getElementById('adminLockForm').style.display = 'none';
     toast('管理者設定を開きました。PINを設定することをお勧めします');
     return;
   }
   if (input === pin) {
+    adminUnlocked = true;
     document.getElementById('adminContent').style.display = 'block';
     document.getElementById('adminLockForm').style.display = 'none';
     document.getElementById('adminPinInput').value = '';
@@ -2140,6 +2174,25 @@ function unlockAdmin() {
 function showPinSetup() {
   const f = document.getElementById('pinSetupForm');
   f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+}
+
+function enableLocalEdit() {
+  localStorage.setItem('yoyaku_local_edit', '1');
+  toast('このPCで編集が可能になりました');
+  applyReadOnlyUI();
+  document.getElementById('localEditEnableBtn').style.display = 'none';
+  document.getElementById('localEditDisableBtn').style.display = 'inline-flex';
+  document.getElementById('localEditStatus').innerHTML = '<div class="notif-status notif-granted">✏️ 共用PCでの編集が許可されています</div>';
+}
+
+function disableLocalEdit() {
+  if (!confirm('編集モードを解除して閲覧のみに戻しますか？')) return;
+  localStorage.removeItem('yoyaku_local_edit');
+  toast('閲覧のみモードに戻しました');
+  applyReadOnlyUI();
+  document.getElementById('localEditEnableBtn').style.display = 'inline-flex';
+  document.getElementById('localEditDisableBtn').style.display = 'none';
+  document.getElementById('localEditStatus').innerHTML = '<div class="notif-status notif-default">👁 現在は閲覧のみです</div>';
 }
 
 function savePin() {
